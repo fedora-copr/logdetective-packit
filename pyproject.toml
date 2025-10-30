@@ -1,0 +1,23 @@
+[project]
+name = "logdetective-packit"
+version = "0.1.0"
+description = "Server providing interface between packit and Log Detective"
+authors = [
+    { name = "Jiri Podivin", email = "jpodivin@redhat.com" }
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.120.2",
+    "fedora-messaging>=3.8.0",
+    "gunicorn>=23.0.0",
+    "ruff>=0.14.2",
+    "uvicorn>=0.38.0",
+]
+
+[project.scripts]
+example-pkg = "logdetective_packit:main"
+
+[build-system]
+requires = ["uv_build>=0.9.6,<0.10.0"]
+build-backend = "uv_build"
