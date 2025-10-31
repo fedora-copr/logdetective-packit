@@ -379,6 +379,7 @@ dependencies = [
     { name = "fastapi" },
     { name = "fedora-messaging" },
     { name = "gunicorn" },
+    { name = "requests" },
     { name = "ruff" },
     { name = "uvicorn" },
 ]
@@ -388,6 +389,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.120.2" },
     { name = "fedora-messaging", specifier = ">=3.8.0" },
     { name = "gunicorn", specifier = ">=23.0.0" },
+    { name = "requests", specifier = ">=2.32.5" },
     { name = "ruff", specifier = ">=0.14.2" },
     { name = "uvicorn", specifier = ">=0.38.0" },
 ]
