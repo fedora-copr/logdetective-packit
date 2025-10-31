@@ -19,7 +19,7 @@ env:
 
 jobs:
   build:
-
+    environment: quay
     runs-on: ubuntu-latest
     permissions:
       contents: read
