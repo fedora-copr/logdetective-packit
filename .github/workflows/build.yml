@@ -24,26 +24,8 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Set project version from tag
-        run: uv version ${GITHUB_REF_NAME#v}
-        shell: bash
-
-      - name: Configure Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Commit and push version bump
-        run: |
-          # Check if the pyproject.toml file was actually changed
-          if ! git diff --quiet pyproject.toml; then
-            echo "Committing version bump..."
-            git commit pyproject.toml -m "Bump version to ${GITHUB_REF_NAME#v}" -m "Triggered by tag ${GITHUB_REF_NAME}"
-            git push
-          else
-            echo "Version in pyproject.toml already matches tag. No commit needed."
-          fi
-
+      - name: Set new version
+        run: uv version 
 
       - name: Install the project
         run: uv sync --locked --all-extras --dev
