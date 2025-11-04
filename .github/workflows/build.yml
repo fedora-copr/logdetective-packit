@@ -1,18 +1,14 @@
-name: Build and publish the package
+name: Build the package
 on:
   push:
-    tags:
-      # Publish on any tag starting with a `v`, e.g., v0.1.0
-      - v*
+  pull_request:
 jobs:
-  uv-publishing:
+  uv-building:
     name: python
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
-        with:
-          ref: main
 
       - name: "Set up Python"
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
@@ -24,32 +20,11 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Set project version from tag
-        run: uv version ${GITHUB_REF_NAME#v}
-        shell: bash
-
-      - name: Configure Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Commit and push version bump
-        run: |
-          # Check if the pyproject.toml file was actually changed
-          if ! git diff --quiet pyproject.toml; then
-            echo "Committing version bump..."
-            git commit pyproject.toml -m "Bump version to ${GITHUB_REF_NAME#v}" -m "Triggered by tag ${GITHUB_REF_NAME}"
-            git push
-          else
-            echo "Version in pyproject.toml already matches tag. No commit needed."
-          fi
-
+      - name: Set new version
+        run: uv version 
 
       - name: Install the project
         run: uv sync --locked --all-extras --dev
 
       - name: Build the project
         run: uv build
-
-#     - name: Publish
-#       run: uv publish
