@@ -24,7 +24,7 @@ async def analyze_build(build_info: BuildInfo) -> None:
     """Submit given build to Log Detective server for analysis.
     Only the first log URL is used for now."""
 
-    log_url = list(build_info.logs.items())[0]
+    log_url = list(build_info.logs.items())[0][1]
     headers = {}
     # If Log Detective server requires authorization
     if LD_TOKEN:
