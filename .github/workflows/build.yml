@@ -1,11 +1,8 @@
-name: Build and publish the package
+name: Build the package
 on:
   push:
-    tags:
-      # Publish on any tag starting with a `v`, e.g., v0.1.0
-      - v*
 jobs:
-  uv-publishing:
+  uv-building:
     name: python
     runs-on: ubuntu-latest
 
@@ -30,6 +27,3 @@ jobs:
 
       - name: Build the project
         run: uv build
-
-#     - name: Publish
-#       run: uv publish
