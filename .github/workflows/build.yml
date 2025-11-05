@@ -21,7 +21,7 @@ jobs:
           enable-cache: true
 
       - name: Set new version
-        run: uv version 
+        run: uv version
 
       - name: Install the project
         run: uv sync --locked --all-extras --dev
