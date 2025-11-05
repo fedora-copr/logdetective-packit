@@ -1,4 +1,6 @@
-# logdetective-packit
+# logdetective-packit 
+
+[![Run pytest](https://github.com/fedora-copr/logdetective-packit/actions/workflows/pytest.yml/badge.svg)](https://github.com/fedora-copr/logdetective-packit/actions/workflows/pytest.yml) [![Container Image Build and Publish](https://github.com/fedora-copr/logdetective-packit/actions/workflows/image_publish.yml/badge.svg)](https://github.com/fedora-copr/logdetective-packit/actions/workflows/image_publish.yml)
 
 Server providing interface between packit and Log Detective using Fedora
 messaging infrastructure.
