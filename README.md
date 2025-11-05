@@ -2,8 +2,8 @@
 
 [![Run pytest](https://github.com/fedora-copr/logdetective-packit/actions/workflows/pytest.yml/badge.svg)](https://github.com/fedora-copr/logdetective-packit/actions/workflows/pytest.yml) [![Container Image Build and Publish](https://github.com/fedora-copr/logdetective-packit/actions/workflows/image_publish.yml/badge.svg)](https://github.com/fedora-copr/logdetective-packit/actions/workflows/image_publish.yml)
 
-Server providing interface between packit and Log Detective using Fedora
-messaging infrastructure.
+Server providing interface between [Packit](https://packit.dev/) and [Log Detective](https://github.com/fedora-copr/logdetective) using [Fedora
+messaging infrastructure](https://docs.fedoraproject.org/en-US/infra/developer_guide/messaging/).
  
 Requests sent to `/analyze` enpoint are routed to Log Detective server
 with URL set by `LD_URL` environment variable. Eventual response is
