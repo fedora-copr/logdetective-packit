@@ -33,7 +33,7 @@ arguments = {}
 [[bindings]]
 queue = "197dc06b-3ae6-435a-93dc-baad4e39cda2"
 exchange = "amq.topic"
-routing_keys = ["#"]
+routing_keys = ["logdetective.#"]
 
 [consumer_config]
 example_key = "for my consumer"
