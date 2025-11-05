@@ -31,6 +31,15 @@ build_id (str): A unique identifier for the build, which will be included in the
 
 ## Run the container
 
+Images are published to quay.io. If it isn't available, or if you want
+to test your own changes. First build your own image
+
+```
+podman build -t logdetective-packit .
+```
+
+and then run the container:
+
 ```
 podman run -d --name logdetective-packit \
   -p 8090:8090 \
