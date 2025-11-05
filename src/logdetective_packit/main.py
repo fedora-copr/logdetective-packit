@@ -12,11 +12,10 @@ LD_URL = os.environ["LD_URL"]
 LD_TOKEN = os.environ.get("LD_TOKEN", "")
 PUBLISH_TIMEOUT = int(os.environ.get("PUBLISH_TIMEOUT", 30))
 
-app = FastAPI(
-    title="LogDetectivePackit",
-    version=version("logdetective-packit"))
+app = FastAPI(title="LogDetectivePackit", version=version("logdetective-packit"))
 
 conf.setup_logging()
+
 
 @app.post("/analyze")
 async def analyze_build(build_info: BuildInfo) -> None:
@@ -31,11 +30,13 @@ async def analyze_build(build_info: BuildInfo) -> None:
         headers["Authorization"] = f"Bearer {LD_TOKEN}"
     try:
         response = requests.post(
-            url=LD_URL, data={"url": log_url}, headers=headers,
+            url=LD_URL,
+            data={"url": log_url},
+            headers=headers,
         )
         response = {
             "log_detective_response": response.json(),
-            "target_build": build_info.build_id
+            "target_build": build_info.build_id,
         }
         message = Message(body=response, topic="logdetective.analysis")
     except Exception as ex:
