@@ -54,7 +54,7 @@ are part of the image, being installed as part of `fedora-messaging` package.
 ## Development
 
 Dependencies and local environment are best managed trough `uv`.
-Installing the project and all depencies locally with `uv sync --locked --all-extras --dev`.
+Installing the project and all dependencies locally with `uv sync --locked --all-extras --dev`.
 
 This server should be kept as small and fast as possible. Processing of logs should all be done
 on the side of Log Detective server itself.
