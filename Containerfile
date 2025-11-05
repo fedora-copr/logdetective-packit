@@ -9,12 +9,11 @@ ENV LD_URL=0.0.0.0:8080
 RUN dnf install -y \
   python3-pip \
   python3-fedora-messaging \
+  fedora-messaging \
   && dnf clean all
 
 RUN mkdir /src
 
-# Create dir for fedora-messaging config
-RUN mkdir -p /etc/fedora-messaging/
 # Copy Fedora messaging config to the default location
 COPY ./server/conf.toml /etc/fedora-messaging/config.toml
 

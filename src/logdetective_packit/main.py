@@ -10,8 +10,7 @@ from logdetective_packit.models import BuildInfo
 
 LD_URL = os.environ["LD_URL"]
 LD_TOKEN = os.environ.get("LD_TOKEN", "")
-PUBLISH_TIMEOUT = os.environ.get("PUBLISH_TIMEOUT", 30)
-MESSAGE_EXCHANGE = os.environ.get("MESSAGE_EXCHANGE", "log_detective")
+PUBLISH_TIMEOUT = int(os.environ.get("PUBLISH_TIMEOUT", 30))
 
 app = FastAPI(
     title="LogDetectivePackit",
@@ -45,4 +44,4 @@ async def analyze_build(build_info: BuildInfo) -> None:
             topic="logdetective.analysis",
         )
 
-    publish(message=message, exchange=MESSAGE_EXCHANGE, timeout=int(PUBLISH_TIMEOUT))
+    publish(message=message, timeout=PUBLISH_TIMEOUT)
