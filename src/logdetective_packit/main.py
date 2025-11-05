@@ -40,7 +40,7 @@ async def analyze_build(build_info: BuildInfo) -> None:
         message = Message(body=response, topic="logdetective.analysis")
     except Exception as ex:
         message = Message(
-            body={"result": f"Build analysis failed with {ex}"},
+            body={"result": f"Build analysis failed with `{ex}`"},
             topic="logdetective.analysis",
         )
 
