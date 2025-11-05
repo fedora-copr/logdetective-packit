@@ -25,4 +25,3 @@ WORKDIR /src
 RUN pip install .
 
 ENTRYPOINT gunicorn -c "./server/gunicorn.config.py" logdetective_packit.main:app
-
