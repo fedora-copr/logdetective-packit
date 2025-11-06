@@ -4,8 +4,7 @@ from pydantic import ValidationError
 
 
 def test_buildinfo_model_creation():
-    """
-    Tests successful creation of the BuildInfo model.
+    """Test successful creation of the BuildInfo model.
     This is a basic skeleton test to ensure the model loads and validates.
     """
     data = {
@@ -26,8 +25,8 @@ def test_buildinfo_model_creation():
 
 
 def test_buildinfo_model_validation_error():
-    """
-    Tests that the model raises a ValidationError for missing required fields.
+    """Test that the model raises a ValidationError for missing required fields.
+    Or if there are no logs in the `logs` field.
     """
     invalid_data = {
         "logs": {"builder-live.log": "http://example.com/builder-live.log"}
@@ -36,3 +35,12 @@ def test_buildinfo_model_validation_error():
 
     with pytest.raises(ValidationError):
         BuildInfo(**invalid_data)
+    
+    invalid_data = {
+        "build_id": "12345",
+        "logs": {},
+    }
+
+    with pytest.raises(ValidationError):
+        BuildInfo(**invalid_data)
+
