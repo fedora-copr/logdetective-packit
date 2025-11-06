@@ -1,10 +1,6 @@
 import pytest
 
-MINIMAL_BUILD_INFO = {
-    "logs": {
-        "dummy_log": "dummy_log_url"
-        },
-    "build_id": "12345"}
+MINIMAL_BUILD_INFO = {"logs": {"dummy_log": "dummy_log_url"}, "build_id": "12345"}
 
 MULTILOG_BUILD_INFO = {
     "logs": {
@@ -25,11 +21,10 @@ INVALID_BUILD_INFO_NO_BUILD_ID = {
 }
 
 
-DUMMY_MESSAGE_BODY = {
-    "dummy_field": "dummy_value"
-}
+DUMMY_MESSAGE_BODY = {"dummy_field": "dummy_value"}
 
 # Mock utilities
+
 
 @pytest.fixture
 def mock_env_vars(monkeypatch):
@@ -53,7 +48,7 @@ def mock_external_calls(mocker):
     return {"mock_publish": mock_publish, "mock_requests_post": mock_requests_post}
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_server_logger(mocker):
     """Mock calls to server logger, this should not mock FastAPI logger,
     nor the fedora-messaging logger"""
