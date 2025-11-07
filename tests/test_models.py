@@ -1,6 +1,5 @@
 import pytest
 from logdetective_packit.models import BuildInfo
-from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
 from tests.utils import (
