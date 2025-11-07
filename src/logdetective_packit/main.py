@@ -5,6 +5,7 @@ from importlib.metadata import version
 
 from fastapi import FastAPI
 import requests
+from httpx import AsyncClient, HTTPStatusError
 from fedora_messaging.api import publish, Message
 from fedora_messaging.config import conf
 from fedora_messaging.exceptions import (
@@ -28,9 +29,9 @@ app = FastAPI(title="LogDetectivePackit", version=version("logdetective-packit")
 conf.setup_logging()
 
 
-def publish_message(message: Message):
+async def publish_message(message: Message):
     try:
-        publish(message=message, timeout=PUBLISH_TIMEOUT)
+        await asyncio.to_thread(publish, message=message, timeout=PUBLISH_TIMEOUT)
     except (PublishReturned, PublishForbidden, PublishTimeout, ValidationError) as ex:
         LOG.error("Publishing result")
         raise ex
@@ -47,13 +48,14 @@ async def call_log_detective(build_info: BuildInfo) -> None:
     if LD_TOKEN:
         headers["Authorization"] = f"Bearer {LD_TOKEN}"
     try:
-        response = requests.post(
-            url=LD_URL,
-            data={"url": log_url},
-            headers=headers,
-        )
+        async with AsyncClient() as client:
+            response = await client.post(
+                url=LD_URL,
+                data={"url": log_url},
+                headers=headers,
+            )
         response.raise_for_status()
-    except requests.HTTPError as ex:
+    except HTTPStatusError as ex:
         LOG.error("Request to Log Detective API at %s failed with %s", LD_URL, ex)
         message = Message(
             body={
@@ -62,7 +64,7 @@ async def call_log_detective(build_info: BuildInfo) -> None:
             },
             topic="logdetective.analysis",
         )
-        publish_message(message)
+        await publish_message(message)
         raise ex
 
     try:
@@ -76,7 +78,7 @@ async def call_log_detective(build_info: BuildInfo) -> None:
             },
             topic="logdetective.analysis",
         )
-        publish_message(message)
+        await publish_message(message)
         raise ex
 
     response = {
@@ -84,7 +86,7 @@ async def call_log_detective(build_info: BuildInfo) -> None:
         "target_build": build_info.build_id,
     }
     message = Message(body=response, topic="logdetective.analysis")
-    publish_message(message)
+    await publish_message(message)
 
 
 @app.post("/analyze")
@@ -94,4 +96,4 @@ async def analyze_build(build_info: BuildInfo) -> str:
 
     asyncio.create_task(call_log_detective(build_info))
 
-    return "Task created"
+    return "success"

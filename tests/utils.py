@@ -1,4 +1,9 @@
+import asyncio
+
 import pytest
+import pytest_asyncio
+
+from httpx import Response
 
 MINIMAL_BUILD_INFO = {"logs": {"dummy_log": "dummy_log_url"}, "build_id": "12345"}
 
@@ -41,11 +46,29 @@ def mock_external_calls(mocker):
 
     fedora_messaging.api.publish function is mocked at main module
     """
+    mock_response = mocker.MagicMock()
+    mock_response.json.return_value = {"status": "success"}
+    mock_response.raise_for_status = mocker.MagicMock()
 
-    mock_requests_post = mocker.patch("requests.post")
+    mock_async_client = mocker.AsyncMock()
+    mock_async_client.post.return_value = mock_response
+
+    # Return self instead of another mock, this simplifies assertions
+    # placed on post
+    mock_async_client.__aenter__.return_value = mock_async_client
+
+    mocker.patch("logdetective_packit.main.AsyncClient", return_value=mock_async_client)
     mock_publish = mocker.patch("logdetective_packit.main.publish")
 
-    return {"mock_publish": mock_publish, "mock_requests_post": mock_requests_post}
+    return {"mock_publish": mock_publish, "mock_async_client": mock_async_client}
+
+
+@pytest.fixture
+def mock_publish_function(mocker):
+    """Mock publish function"""
+    mock_publish = mocker.patch("logdetective_packit.main.publish")
+
+    return {"mock_publish": mock_publish}
 
 
 @pytest.fixture()
@@ -56,3 +79,28 @@ def mock_server_logger(mocker):
     mock_logger = mocker.patch("logdetective_packit.main.LOG")
 
     return {"mock_logger": mock_logger}
+
+
+class TaskCatcher:
+    created_task = None
+
+    def __init__(self, original_create_task) -> None:
+        self.original_create_task = original_create_task
+
+    def capture_task(self, coro):
+        """Capture coroutine and task created by coroutine"""
+        self.captured_coro = coro
+        self.created_task = self.original_create_task(coro)
+        return self.created_task
+
+
+@pytest.fixture
+def mock_create_task_call(mocker):
+    original_create_task = asyncio.create_task
+    task_catcher = TaskCatcher(original_create_task)
+    mock_create_task = mocker.patch(
+        "logdetective_packit.main.asyncio.create_task",
+        side_effect=task_catcher.capture_task,
+    )
+
+    return {"mock_create_task": mock_create_task, "task_catcher": task_catcher}
