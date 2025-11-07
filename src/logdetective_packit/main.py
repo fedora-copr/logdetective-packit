@@ -1,10 +1,10 @@
 import asyncio
+from json import JSONDecodeError
 import logging
 import os
 from importlib.metadata import version
 
 from fastapi import FastAPI
-import requests
 from httpx import AsyncClient, HTTPStatusError
 from fedora_messaging.api import publish, Message
 from fedora_messaging.config import conf
@@ -69,7 +69,7 @@ async def call_log_detective(build_info: BuildInfo) -> None:
 
     try:
         response = response.json()
-    except requests.exceptions.JSONDecodeError as ex:
+    except JSONDecodeError as ex:
         LOG.error("Decoding response from Log Detective API failed with %s", ex)
         message = Message(
             body={
