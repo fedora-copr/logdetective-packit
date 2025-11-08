@@ -1,9 +1,6 @@
 import asyncio
 
 import pytest
-import pytest_asyncio
-
-from httpx import Response
 
 MINIMAL_BUILD_INFO = {"logs": {"dummy_log": "dummy_log_url"}, "build_id": "12345"}
 
