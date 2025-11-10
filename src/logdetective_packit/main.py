@@ -17,6 +17,7 @@ from fedora_messaging.exceptions import (
 
 from logdetective_packit.models import BuildInfo
 
+TOPIC = "org.fedoraproject.prod.logdetective.analysis"
 LD_URL = os.environ["LD_URL"]
 LD_TOKEN = os.environ.get("LD_TOKEN", "")
 PUBLISH_TIMEOUT = int(os.environ.get("PUBLISH_TIMEOUT", 30))
@@ -62,7 +63,7 @@ async def call_log_detective(build_info: BuildInfo) -> None:
                 "result": f"Build analysis failed with `{ex}`",
                 "target_build": build_info.build_id,
             },
-            topic="logdetective.analysis",
+            topic=TOPIC,
         )
         await publish_message(message)
         raise ex
@@ -76,7 +77,7 @@ async def call_log_detective(build_info: BuildInfo) -> None:
                 "result": f"Decoding response from Log Detective failed with `{ex}`",
                 "target_build": build_info.build_id,
             },
-            topic="logdetective.analysis",
+            topic=TOPIC,
         )
         await publish_message(message)
         raise ex
