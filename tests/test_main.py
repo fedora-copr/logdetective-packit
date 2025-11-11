@@ -135,7 +135,7 @@ async def test_analyze_build_skeleton(
 
     mock_external_calls["mock_async_client"].post.assert_called_once_with(
         url="http://mock-ld-server.com/api",
-        data=expected_data,
+        json=expected_data,
         headers=expected_headers,
     )
 

@@ -20,6 +20,7 @@ from logdetective_packit.models import BuildInfo
 TOPIC = "org.fedoraproject.prod.logdetective.analysis"
 LD_URL = os.environ["LD_URL"]
 LD_TOKEN = os.environ.get("LD_TOKEN", "")
+LD_TIMEOUT = int(os.environ.get("LD_TIMEOUT", 107))
 PUBLISH_TIMEOUT = int(os.environ.get("PUBLISH_TIMEOUT", 30))
 
 LOG = logging.Logger("LogDetectivePackit", level=logging.WARNING)
@@ -49,11 +50,11 @@ async def call_log_detective(build_info: BuildInfo) -> None:
     if LD_TOKEN:
         headers["Authorization"] = f"Bearer {LD_TOKEN}"
     try:
-        async with AsyncClient() as client:
+        async with AsyncClient(timeout=LD_TIMEOUT) as client:
             response = await client.post(
                 url=LD_URL,
-                data={"url": log_url},
                 headers=headers,
+                json={"url": log_url},
             )
         response.raise_for_status()
     except HTTPStatusError as ex:

@@ -1,6 +1,6 @@
 [project]
 name = "logdetective-packit"
-version = "0.3.0"
+version = "0.4.0"
 description = "Server providing interface between packit and Log Detective"
 authors = [
     { name = "Jiri Podivin", email = "jpodivin@redhat.com" }
