@@ -57,6 +57,21 @@ async def call_log_detective(build_info: BuildInfo) -> None:
             )
         response.raise_for_status()
     except HTTPStatusError as ex:
+        LOG.error(
+            "Request to Log Detective API at %s failed with HTTP status error: %s",
+            LD_URL,
+            ex,
+        )
+        message = Message(
+            body={
+                "result": f"Build analysis failed with HTTP status error `{ex}`",
+                "target_build": build_info.build_id,
+            },
+            topic=TOPIC,
+        )
+        await publish_message(message)
+        raise ex
+    except Exception as ex:
         LOG.error("Request to Log Detective API at %s failed with %s", LD_URL, ex)
         message = Message(
             body={
