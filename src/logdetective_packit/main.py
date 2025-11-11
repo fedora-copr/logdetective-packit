@@ -17,7 +17,7 @@ from fedora_messaging.exceptions import (
 
 from logdetective_packit.models import BuildInfo
 
-TOPIC = "org.fedoraproject.prod.logdetective.analysis"
+TOPIC = "logdetective.analysis"
 LD_URL = os.environ["LD_URL"]
 LD_TOKEN = os.environ.get("LD_TOKEN", "")
 LD_TIMEOUT = int(os.environ.get("LD_TIMEOUT", 107))
@@ -102,7 +102,7 @@ async def call_log_detective(build_info: BuildInfo) -> None:
         "log_detective_response": response,
         "target_build": build_info.build_id,
     }
-    message = Message(body=response, topic="logdetective.analysis")
+    message = Message(body=response, topic=TOPIC)
     await publish_message(message)
 
 
