@@ -66,7 +66,7 @@ async def call_log_detective(build_info: BuildInfo) -> None:
         message = Message(
             body={
                 "result": f"Build analysis failed with HTTP status error `{ex}`",
-                "target_build": build_info.build_id,
+                "target_build": build_info.target_build,
             },
             topic=TOPIC,
         )
@@ -77,7 +77,7 @@ async def call_log_detective(build_info: BuildInfo) -> None:
         message = Message(
             body={
                 "result": f"Build analysis failed with `{ex}`",
-                "target_build": build_info.build_id,
+                "target_build": build_info.target_build,
             },
             topic=TOPIC,
         )
@@ -91,7 +91,7 @@ async def call_log_detective(build_info: BuildInfo) -> None:
         message = Message(
             body={
                 "result": f"Decoding response from Log Detective failed with `{ex}`",
-                "target_build": build_info.build_id,
+                "target_build": build_info.target_build,
             },
             topic=TOPIC,
         )
@@ -100,7 +100,7 @@ async def call_log_detective(build_info: BuildInfo) -> None:
 
     response = {
         "log_detective_response": response,
-        "target_build": build_info.build_id,
+        "target_build": build_info.target_build,
     }
     message = Message(body=response, topic=TOPIC)
     await publish_message(message)

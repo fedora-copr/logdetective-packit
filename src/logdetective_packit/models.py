@@ -7,6 +7,6 @@ class BuildInfo(BaseModel):
     logs: dict[str, str] = Field(
         description="Dictionary of logs and their URLs", min_length=1
     )
-    build_id: str = Field(
+    target_build: str = Field(
         description="Unique identifier of the build so the result can be reported"
     )

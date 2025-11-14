@@ -111,10 +111,7 @@ async def test_analyze_build_skeleton(
     from logdetective_packit.main import app
 
     # Based on BuildInfo model
-    payload = {
-        "logs": {"builder-live.log": "http://example.com/builder-live.log"},
-        "build_id": "12345",
-    }
+    payload = MINIMAL_BUILD_INFO
 
     # Make the request to the endpoint
     async with AsyncClient(
