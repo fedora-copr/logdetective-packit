@@ -2,24 +2,27 @@ import asyncio
 
 import pytest
 
-MINIMAL_BUILD_INFO = {"logs": {"dummy_log": "dummy_log_url"}, "build_id": "12345"}
+MINIMAL_BUILD_INFO = {
+    "logs": {"builder-live.log": "http://example.com/builder-live.log"},
+    "target_build": "12345",
+}
 
 MULTILOG_BUILD_INFO = {
     "logs": {
         "builder-live.log": "http://example.com/builder-live.log",
         "backend.log": "http://example.com/backend.log",
     },
-    "build_id": "12345",
+    "target_build": "12345",
 }
 
 INVALID_BUILD_INFO_EMPTY_LOGS = {
-    "build_id": "12345",
+    "target_build": "12345",
     "logs": {},
 }
 
-INVALID_BUILD_INFO_NO_BUILD_ID = {
+INVALID_BUILD_INFO_NO_TARGET_BUILD = {
     "logs": {"builder-live.log": "http://example.com/builder-live.log"}
-    # 'build_id' is missing
+    # 'target_build' is missing
 }
 
 
