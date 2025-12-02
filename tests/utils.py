@@ -5,6 +5,7 @@ import pytest
 MINIMAL_BUILD_INFO = {
     "logs": {"builder-live.log": "http://example.com/builder-live.log"},
     "target_build": "12345",
+    "build_system": "copr",
 }
 
 MULTILOG_BUILD_INFO = {
@@ -12,16 +13,19 @@ MULTILOG_BUILD_INFO = {
         "builder-live.log": "http://example.com/builder-live.log",
         "backend.log": "http://example.com/backend.log",
     },
+    "build_system": "koji",
     "target_build": "12345",
 }
 
 INVALID_BUILD_INFO_EMPTY_LOGS = {
     "target_build": "12345",
     "logs": {},
+    "build_system": "copr",
 }
 
 INVALID_BUILD_INFO_NO_TARGET_BUILD = {
-    "logs": {"builder-live.log": "http://example.com/builder-live.log"}
+    "logs": {"builder-live.log": "http://example.com/builder-live.log"},
+    "build_system": "koji",
     # 'target_build' is missing
 }
 
