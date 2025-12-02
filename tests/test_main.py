@@ -1,5 +1,6 @@
 import pytest
 
+import uuid
 from fedora_messaging.api import Message
 from fedora_messaging.exceptions import (
     ValidationError,
@@ -67,9 +68,9 @@ async def test_call_log_detective(
     mock_env_vars, mock_external_calls, mock_server_logger
 ):
     from logdetective_packit.main import call_log_detective
-
+    log_detective_analysis_id = "8052517e-cf69-11f0-9b27-9a478821d0e2"
     build_info = BuildInfo(**MINIMAL_BUILD_INFO)
-    await call_log_detective(build_info=build_info)
+    await call_log_detective(build_info=build_info, log_detective_analysis_id=log_detective_analysis_id)
 
     mock_external_calls["mock_publish"].assert_called_once()
 
@@ -89,7 +90,8 @@ async def test_call_log_detective_request_exception(
     )
 
     with pytest.raises(HTTPStatusError):
-        await call_log_detective(build_info=build_info)
+        log_detective_build_analysis_id = "8052517e-cf69-11f0-9b27-9a478821d0e2"
+        await call_log_detective(build_info=build_info, log_detective_analysis_id=log_detective_build_analysis_id)
         mock_server_logger["mock_logger"].assert_called_once()
         mock_external_calls["mock_async_client"].post.assert_called_once()
 

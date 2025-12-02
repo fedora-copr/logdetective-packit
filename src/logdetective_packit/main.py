@@ -3,6 +3,7 @@ from json import JSONDecodeError
 import logging
 import os
 from importlib.metadata import version
+import uuid
 
 from fastapi import FastAPI
 from httpx import AsyncClient, HTTPStatusError
@@ -15,7 +16,7 @@ from fedora_messaging.exceptions import (
     PublishReturned,
 )
 
-from logdetective_packit.models import BuildInfo
+from logdetective_packit.models import BuildInfo, Response
 
 TOPIC = "logdetective.analysis"
 LD_URL = os.environ["LD_URL"]
@@ -39,7 +40,9 @@ async def publish_message(message: Message):
         raise ex
 
 
-async def call_log_detective(build_info: BuildInfo) -> None:
+async def call_log_detective(
+    build_info: BuildInfo, log_detective_analysis_id: str
+) -> None:
     """Analyze build logs using Log Detective API. Only the first log
     is analyzed."""
     build_logs = list(build_info.logs.items())
@@ -67,6 +70,7 @@ async def call_log_detective(build_info: BuildInfo) -> None:
             body={
                 "result": f"Build analysis failed with HTTP status error `{ex}`",
                 "target_build": build_info.target_build,
+                "log_detective_analysis_id": log_detective_analysis_id,
             },
             topic=TOPIC,
         )
@@ -78,6 +82,7 @@ async def call_log_detective(build_info: BuildInfo) -> None:
             body={
                 "result": f"Build analysis failed with `{ex}`",
                 "target_build": build_info.target_build,
+                "log_detective_analysis_id": log_detective_analysis_id,
             },
             topic=TOPIC,
         )
@@ -92,6 +97,7 @@ async def call_log_detective(build_info: BuildInfo) -> None:
             body={
                 "result": f"Decoding response from Log Detective failed with `{ex}`",
                 "target_build": build_info.target_build,
+                "log_detective_analysis_id": log_detective_analysis_id,
             },
             topic=TOPIC,
         )
@@ -101,16 +107,19 @@ async def call_log_detective(build_info: BuildInfo) -> None:
     response = {
         "log_detective_response": response,
         "target_build": build_info.target_build,
+        "log_detective_analysis_id": log_detective_analysis_id,
     }
     message = Message(body=response, topic=TOPIC)
     await publish_message(message)
 
 
-@app.post("/analyze")
-async def analyze_build(build_info: BuildInfo) -> str:
+@app.post("/analyze", response_model=Response)
+async def analyze_build(build_info: BuildInfo):
     """Submit given build to Log Detective server for analysis.
     Only the first log URL is used for now. Request is made in a separate task."""
 
-    asyncio.create_task(call_log_detective(build_info))
+    log_detective_analysis_id = str(uuid.uuid4())
 
-    return "success"
+    asyncio.create_task(call_log_detective(build_info, log_detective_analysis_id))
+
+    return Response(log_detective_analysis_id=log_detective_analysis_id)
