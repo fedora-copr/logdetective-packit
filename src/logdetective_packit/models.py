@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, Field
 
 
@@ -17,3 +18,4 @@ class Response(BaseModel):
     log_detective_analysis_id: str = Field(
         description="UUID of the analysis which will be used to retrieve the results from messages"
     )
+    creation_time: datetime = Field(description="Time of Log Detective analysis start")

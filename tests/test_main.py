@@ -69,8 +69,10 @@ async def test_call_log_detective(
 ):
     from logdetective_packit.main import call_log_detective
     log_detective_analysis_id = "8052517e-cf69-11f0-9b27-9a478821d0e2"
+    log_detective_build_analysis_start = "2025-12-10 10:57:57.341695+00:00"
     build_info = BuildInfo(**MINIMAL_BUILD_INFO)
-    await call_log_detective(build_info=build_info, log_detective_analysis_id=log_detective_analysis_id)
+    await call_log_detective(build_info=build_info, log_detective_analysis_id=log_detective_analysis_id,
+                             log_detective_analysis_start=log_detective_build_analysis_start)
 
     mock_external_calls["mock_publish"].assert_called_once()
 
@@ -91,7 +93,9 @@ async def test_call_log_detective_request_exception(
 
     with pytest.raises(HTTPStatusError):
         log_detective_build_analysis_id = "8052517e-cf69-11f0-9b27-9a478821d0e2"
-        await call_log_detective(build_info=build_info, log_detective_analysis_id=log_detective_build_analysis_id)
+        log_detective_build_analysis_start = "2025-12-10 10:57:57.341695+00:00"
+        await call_log_detective(build_info=build_info, log_detective_analysis_id=log_detective_build_analysis_id,
+                                 log_detective_analysis_start=log_detective_build_analysis_start)
         mock_server_logger["mock_logger"].assert_called_once()
         mock_external_calls["mock_async_client"].post.assert_called_once()
 
