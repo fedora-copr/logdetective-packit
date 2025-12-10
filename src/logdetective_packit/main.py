@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime, timezone
 from json import JSONDecodeError
 import logging
 import os
@@ -41,7 +42,9 @@ async def publish_message(message: Message):
 
 
 async def call_log_detective(
-    build_info: BuildInfo, log_detective_analysis_id: str
+    build_info: BuildInfo,
+    log_detective_analysis_id: str,
+    log_detective_analysis_start: str,
 ) -> None:
     """Analyze build logs using Log Detective API. Only the first log
     is analyzed."""
@@ -71,6 +74,7 @@ async def call_log_detective(
                 "result": f"Build analysis failed with HTTP status error `{ex}`",
                 "target_build": build_info.target_build,
                 "log_detective_analysis_id": log_detective_analysis_id,
+                "log_detective_analysis_start": log_detective_analysis_start,
             },
             topic=TOPIC,
         )
@@ -83,6 +87,7 @@ async def call_log_detective(
                 "result": f"Build analysis failed with `{ex}`",
                 "target_build": build_info.target_build,
                 "log_detective_analysis_id": log_detective_analysis_id,
+                "log_detective_analysis_start": log_detective_analysis_start,
             },
             topic=TOPIC,
         )
@@ -98,6 +103,7 @@ async def call_log_detective(
                 "result": f"Decoding response from Log Detective failed with `{ex}`",
                 "target_build": build_info.target_build,
                 "log_detective_analysis_id": log_detective_analysis_id,
+                "log_detective_analysis_start": log_detective_analysis_start,
             },
             topic=TOPIC,
         )
@@ -108,6 +114,7 @@ async def call_log_detective(
         "log_detective_response": response,
         "target_build": build_info.target_build,
         "log_detective_analysis_id": log_detective_analysis_id,
+        "log_detective_analysis_start": log_detective_analysis_start,
     }
     message = Message(body=response, topic=TOPIC)
     await publish_message(message)
@@ -119,7 +126,16 @@ async def analyze_build(build_info: BuildInfo):
     Only the first log URL is used for now. Request is made in a separate task."""
 
     log_detective_analysis_id = str(uuid.uuid4())
+    log_detective_analysis_start = str(datetime.now(timezone.utc))
+    asyncio.create_task(
+        call_log_detective(
+            build_info,
+            log_detective_analysis_id,
+            log_detective_analysis_start=log_detective_analysis_start,
+        )
+    )
 
-    asyncio.create_task(call_log_detective(build_info, log_detective_analysis_id))
-
-    return Response(log_detective_analysis_id=log_detective_analysis_id)
+    return Response(
+        log_detective_analysis_id=log_detective_analysis_id,
+        creation_time=log_detective_analysis_start,
+    )
