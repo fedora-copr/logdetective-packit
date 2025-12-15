@@ -17,7 +17,7 @@ from fedora_messaging.exceptions import (
     PublishReturned,
 )
 
-from logdetective_packit.models import BuildInfo, Response
+from logdetective_packit.models import BuildInfo, Response, LogDetectiveResult
 
 TOPIC = "logdetective.analysis"
 LD_URL = os.environ["LD_URL"]
@@ -71,7 +71,7 @@ async def call_log_detective(
         )
         message = Message(
             body={
-                "result": f"Build analysis failed with HTTP status error `{ex}`",
+                "result": LogDetectiveResult.error,
                 "target_build": build_info.target_build,
                 "log_detective_analysis_id": log_detective_analysis_id,
                 "log_detective_analysis_start": log_detective_analysis_start,
@@ -87,7 +87,7 @@ async def call_log_detective(
         LOG.error("Request to Log Detective API at %s failed with %s", LD_URL, ex)
         message = Message(
             body={
-                "result": f"Build analysis failed with `{ex}`",
+                "result": LogDetectiveResult.error,
                 "target_build": build_info.target_build,
                 "log_detective_analysis_id": log_detective_analysis_id,
                 "log_detective_analysis_start": log_detective_analysis_start,
@@ -106,7 +106,7 @@ async def call_log_detective(
         LOG.error("Decoding response from Log Detective API failed with %s", ex)
         message = Message(
             body={
-                "result": f"Decoding response from Log Detective failed with `{ex}`",
+                "result": LogDetectiveResult.error,
                 "target_build": build_info.target_build,
                 "log_detective_analysis_id": log_detective_analysis_id,
                 "log_detective_analysis_start": log_detective_analysis_start,
@@ -120,6 +120,7 @@ async def call_log_detective(
         raise ex
 
     response = {
+        "result": LogDetectiveResult.complete,
         "log_detective_response": response,
         "target_build": build_info.target_build,
         "log_detective_analysis_id": log_detective_analysis_id,
