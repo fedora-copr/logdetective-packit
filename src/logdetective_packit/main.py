@@ -75,6 +75,9 @@ async def call_log_detective(
                 "target_build": build_info.target_build,
                 "log_detective_analysis_id": log_detective_analysis_id,
                 "log_detective_analysis_start": log_detective_analysis_start,
+                "project_url": build_info.project_url,
+                "pr_id": build_info.pr_id,
+                "commit_sha": build_info.commit_sha,
             },
             topic=TOPIC,
         )
@@ -88,6 +91,9 @@ async def call_log_detective(
                 "target_build": build_info.target_build,
                 "log_detective_analysis_id": log_detective_analysis_id,
                 "log_detective_analysis_start": log_detective_analysis_start,
+                "project_url": build_info.project_url,
+                "pr_id": build_info.pr_id,
+                "commit_sha": build_info.commit_sha,
             },
             topic=TOPIC,
         )
@@ -104,6 +110,9 @@ async def call_log_detective(
                 "target_build": build_info.target_build,
                 "log_detective_analysis_id": log_detective_analysis_id,
                 "log_detective_analysis_start": log_detective_analysis_start,
+                "project_url": build_info.project_url,
+                "pr_id": build_info.pr_id,
+                "commit_sha": build_info.commit_sha,
             },
             topic=TOPIC,
         )
@@ -115,6 +124,9 @@ async def call_log_detective(
         "target_build": build_info.target_build,
         "log_detective_analysis_id": log_detective_analysis_id,
         "log_detective_analysis_start": log_detective_analysis_start,
+        "project_url": build_info.project_url,
+        "pr_id": build_info.pr_id,
+        "commit_sha": build_info.commit_sha,
     }
     message = Message(body=response, topic=TOPIC)
     await publish_message(message)

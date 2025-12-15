@@ -6,6 +6,9 @@ MINIMAL_BUILD_INFO = {
     "logs": {"builder-live.log": "http://example.com/builder-live.log"},
     "target_build": "12345",
     "build_system": "copr",
+    "commit_sha": "9deb98c730bb4123f518ca13a0dbec5d7c0669ca",
+    "project_url": "www.logdetective.com",
+    "pr_id": 1
 }
 
 MULTILOG_BUILD_INFO = {
@@ -15,17 +18,26 @@ MULTILOG_BUILD_INFO = {
     },
     "build_system": "koji",
     "target_build": "12345",
+    "commit_sha": "9deb98c730bb4123f518ca13a0dbec5d7c0669ca",
+    "project_url": "www.logdetective.com",
+    "pr_id": 1
 }
 
 INVALID_BUILD_INFO_EMPTY_LOGS = {
     "target_build": "12345",
     "logs": {},
     "build_system": "copr",
+    "commit_sha": "9deb98c730bb4123f518ca13a0dbec5d7c0669ca",
+    "project_url": "www.logdetective.com",
+    "pr_id": 1
 }
 
 INVALID_BUILD_INFO_NO_TARGET_BUILD = {
     "logs": {"builder-live.log": "http://example.com/builder-live.log"},
     "build_system": "koji",
+    "commit_sha": "9deb98c730bb4123f518ca13a0dbec5d7c0669ca",
+    "project_url": "www.logdetective.com",
+    "pr_id": 1
     # 'target_build' is missing
 }
 

@@ -12,6 +12,11 @@ class BuildInfo(BaseModel):
         description="Unique identifier of the build so the result can be reported"
     )
     build_system: str = Field(description="System where the build was launched")
+    project_url: str = Field(description="URL of the project being analyzed")
+    commit_sha: str = Field(description="SHA of the commit used as basis of the build")
+    pr_id: int = Field(
+        description="ID of the pull request, or equivalent of the given forge"
+    )
 
 
 class Response(BaseModel):
