@@ -63,6 +63,9 @@ podman run -d --name logdetective-packit \
   logdetective-packit:latest
 ```
 
+The `server/gunicorn.config.py` sets port `8090` as a default, unless the `PACKIT_INTERFACE_PORT` is set.
+For production deployment, use the `PACKIT_INTERFACE_PORT` variable, to set port for the server.
+
 If the selected Log Detective server requires authentication, set the token with `-e LD_TOKEN="your-token"` option.
 Certificates necessary for communication over [public broker](https://fedora-messaging.readthedocs.io/en/stable/user-guide/quick-start.html#fedora-s-public-broker)
 are part of the image, being installed as part of `fedora-messaging` package.
