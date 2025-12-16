@@ -1,6 +1,6 @@
 import os
 
-bind = f"0.0.0.0:{os.environ.get('PACKIT_HANDLER_PORT', 8090)}"
+bind = f"0.0.0.0:{os.environ.get('PACKIT_INTERFACE_PORT', 8090)}"
 worker_class = "uvicorn.workers.UvicornWorker"
 workers = 2
 # timeout set to 600 seconds; with 32 clusters and several runs in parallel, it
