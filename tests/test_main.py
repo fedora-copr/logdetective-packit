@@ -1,6 +1,5 @@
 import pytest
 
-import uuid
 from fedora_messaging.api import Message
 from fedora_messaging.exceptions import (
     ValidationError,
