@@ -4,10 +4,11 @@ import enum
 
 
 class BuildInfo(BaseModel):
-    """ID of the build being analyzed and URL to and all logs."""
+    """ID of the build being analyzed and URL to and all artifacts."""
 
-    logs: dict[str, str] = Field(
-        description="Dictionary of logs and their URLs", min_length=1
+    artifacts: dict[str, str] = Field(
+        description="Dictionary of build artifacts, such as logs and their URLs",
+        min_length=1,
     )
     target_build: str = Field(
         description="Unique identifier of the build so the result can be reported"

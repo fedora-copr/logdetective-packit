@@ -46,10 +46,10 @@ async def call_log_detective(
     log_detective_analysis_id: str,
     log_detective_analysis_start: str,
 ) -> None:
-    """Analyze build logs using Log Detective API. Only the first log
+    """Analyze build artifacts using Log Detective API. Only the first log
     is analyzed."""
-    build_logs = list(build_info.logs.items())
-    log_url = build_logs[0][1]
+    build_artifacts = list(build_info.artifacts.items())
+    log_url = build_artifacts[0][1]
     headers = {}
 
     # If Log Detective server requires authorization

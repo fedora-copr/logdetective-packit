@@ -17,7 +17,7 @@ The endpoint expects a JSON payload matching the `BuildInfo` model:
 
 ```
 {
-  "logs": {
+  "artifacts": {
     "builder-live.log": "http://example.com/builder-live.log",
     "backend.log": "http://example.com/logs/123/backend.log"
   },
@@ -29,7 +29,7 @@ The endpoint expects a JSON payload matching the `BuildInfo` model:
 }
 ```
 
-logs (dict): A dictionary mapping log filenames to their full URL.
+artifacts (dict): A dictionary mapping log filenames to their full URL.
 
 target_build (str): A unique identifier for the build, which will be included in the message.
 
@@ -41,7 +41,7 @@ project_url (str): URL of the project the build is for
 
 pr_id (int): Identifier of the pull request, or equivalent
 
-Of these values, only `logs` are used by Log Detective itself.
+Of these values, only `artifacts` are used by Log Detective itself.
 The rest is used as part of a message sent to Fedora Messaging infrastructure,
 to identify results.
 
