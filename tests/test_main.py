@@ -122,7 +122,7 @@ async def test_analyze_build_skeleton(
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.post("/analyze", json=payload)
+        response = await client.post("/analyze", json=payload, headers={"Authorization": "Bearer secret-123"})
 
     # The endpoint returns None on success, so a 200 OK is expected
     assert response.status_code == 200
@@ -143,3 +143,32 @@ async def test_analyze_build_skeleton(
 
     # Check that fedora-messaging.api.publish was called
     mock_external_calls["mock_publish"].assert_called_once()
+
+@pytest.mark.asyncio
+async def test_analyze_build_skeleton(
+    monkeypatch, mocker, mock_env_vars, mock_external_calls, mock_create_task_call
+):
+    """Test for the entire /analyze endpoint. Authentication token is not provided."""
+
+    # Import the app *after* environment and mocks are in place
+    from logdetective_packit.main import app
+
+    # Based on BuildInfo model
+    payload = MINIMAL_BUILD_INFO
+
+    # Make the request to the endpoint
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.post("/analyze", json=payload)
+
+    # The endpoint returns None on success, so a 403 Forbidden is expected
+    assert response.status_code == 403
+
+    assert mock_create_task_call["task_catcher"].created_task is None
+
+    # Check that requests.post was not called
+    mock_external_calls["mock_async_client"].post.assert_not_called()
+
+    # Check that fedora-messaging.api.publish was not called
+    mock_external_calls["mock_publish"].assert_not_called()

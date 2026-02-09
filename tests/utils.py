@@ -52,6 +52,7 @@ def mock_env_vars(monkeypatch):
     """Set environment variables for server tests"""
     monkeypatch.setenv("LD_URL", "http://mock-ld-server.com/api")
     monkeypatch.setenv("LD_TOKEN", "test-token-123")
+    monkeypatch.setenv("LD_PACKIT_TOKEN", "secret-123")
     monkeypatch.setenv("PUBLISH_TIMEOUT", "10")
     monkeypatch.setenv("MESSAGE_EXCHANGE", "test-exchange")
 
