@@ -4,9 +4,12 @@ from json import JSONDecodeError
 import logging
 import os
 from importlib.metadata import version
+from typing import Annotated
 import uuid
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
 from httpx import AsyncClient, HTTPStatusError
 from fedora_messaging.api import publish, Message
 from fedora_messaging.config import conf
@@ -24,8 +27,11 @@ LD_URL = os.environ["LD_URL"]
 LD_TOKEN = os.environ.get("LD_TOKEN", "")
 LD_TIMEOUT = int(os.environ.get("LD_TIMEOUT", 107))
 PUBLISH_TIMEOUT = int(os.environ.get("PUBLISH_TIMEOUT", 30))
+LD_PACKIT_TOKEN = os.environ.get("LD_PACKIT_TOKEN", "")
 
 LOG = logging.Logger("LogDetectivePackit", level=logging.WARNING)
+
+http_bearer = HTTPBearer()
 
 app = FastAPI(title="LogDetectivePackit", version=version("logdetective-packit"))
 
@@ -134,9 +140,19 @@ async def call_log_detective(
 
 
 @app.post("/analyze", response_model=Response)
-async def analyze_build(build_info: BuildInfo):
+async def analyze_build(
+    build_info: BuildInfo,
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(http_bearer)],
+):
     """Submit given build to Log Detective server for analysis.
     Only the first log URL is used for now. Request is made in a separate task."""
+
+    if credentials.credentials != LD_PACKIT_TOKEN:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing token.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     log_detective_analysis_id = str(uuid.uuid4())
     log_detective_analysis_start = str(datetime.now(timezone.utc))

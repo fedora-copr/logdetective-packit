@@ -45,6 +45,12 @@ Of these values, only `artifacts` are used by Log Detective itself.
 The rest is used as part of a message sent to Fedora Messaging infrastructure,
 to identify results.
 
+When deployed the server must have `LD_PACKIT_TOKEN` environment variable set.
+All requests on `/analyze` endpoint have to be authorized, comparing value of `LD_PACKIT_TOKEN`
+to the value in their `Authorization` header.
+
+For example `Authorization: Bearer secret-123`.
+
 ## Run the container
 
 Images are published to quay.io. If it isn't available, or if you want
@@ -67,6 +73,8 @@ The `server/gunicorn.config.py` sets port `8090` as a default, unless the `PACKI
 For production deployment, use the `PACKIT_INTERFACE_PORT` variable, to set port for the server.
 
 If the selected Log Detective server requires authentication, set the token with `-e LD_TOKEN="your-token"` option.
+For security purposes, this token should under no circumstances be the same as `LD_PACKIT_TOKEN`.
+
 Certificates necessary for communication over [public broker](https://fedora-messaging.readthedocs.io/en/stable/user-guide/quick-start.html#fedora-s-public-broker)
 are part of the image, being installed as part of `fedora-messaging` package.
 
