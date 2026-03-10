@@ -79,6 +79,7 @@ async def call_log_detective(
             body={
                 "status": LogDetectiveResult.error,
                 "target_build": build_info.target_build,
+                "build_system": build_info.build_system,
                 "log_detective_analysis_id": log_detective_analysis_id,
                 "log_detective_analysis_start": log_detective_analysis_start,
                 "project_url": build_info.project_url,
@@ -95,6 +96,7 @@ async def call_log_detective(
             body={
                 "status": LogDetectiveResult.error,
                 "target_build": build_info.target_build,
+                "build_system": build_info.build_system,
                 "log_detective_analysis_id": log_detective_analysis_id,
                 "log_detective_analysis_start": log_detective_analysis_start,
                 "project_url": build_info.project_url,
