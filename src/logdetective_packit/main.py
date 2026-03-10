@@ -23,7 +23,7 @@ from fedora_messaging.exceptions import (
 from logdetective_packit.models import BuildInfo, Response, LogDetectiveResult
 
 TOPIC = os.environ.get("LD_TOPIC", "logdetective.analysis")
-LD_URL = os.environ["LD_URL"]
+LD_URL = os.environ.get("LD_URL")
 LD_TOKEN = os.environ.get("LD_TOKEN", "")
 LD_TIMEOUT = int(os.environ.get("LD_TIMEOUT", 107))
 PUBLISH_TIMEOUT = int(os.environ.get("PUBLISH_TIMEOUT", 30))
