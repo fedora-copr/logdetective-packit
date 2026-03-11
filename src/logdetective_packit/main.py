@@ -23,7 +23,7 @@ from fedora_messaging.exceptions import (
 from logdetective_packit.models import BuildInfo, Response, LogDetectiveResult
 
 TOPIC = os.environ.get("LD_TOPIC", "logdetective.analysis")
-LD_URL = os.environ["LD_URL"]
+LD_URL = os.environ.get("LD_URL")
 LD_TOKEN = os.environ.get("LD_TOKEN", "")
 LD_TIMEOUT = int(os.environ.get("LD_TIMEOUT", 107))
 PUBLISH_TIMEOUT = int(os.environ.get("PUBLISH_TIMEOUT", 30))
@@ -45,6 +45,29 @@ async def publish_message(message: Message):
     except (PublishReturned, PublishForbidden, PublishTimeout, ValidationError) as ex:
         LOG.error("Publishing result")
         raise ex
+
+
+def build_error_message(
+    log_detective_analysis_id: str,
+    log_detective_analysis_start: str,
+    build_info: BuildInfo,
+    error_msg: str = "",
+) -> Message:
+    """Build and return standard error message"""
+    return Message(
+        body={
+            "status": LogDetectiveResult.error,
+            "target_build": build_info.target_build,
+            "build_system": build_info.build_system,
+            "log_detective_analysis_id": log_detective_analysis_id,
+            "log_detective_analysis_start": log_detective_analysis_start,
+            "project_url": build_info.project_url,
+            "pr_id": build_info.pr_id,
+            "commit_sha": build_info.commit_sha,
+            "error_msg": error_msg,
+        },
+        topic=TOPIC,
+    )
 
 
 async def call_log_detective(
@@ -70,38 +93,25 @@ async def call_log_detective(
             )
         response.raise_for_status()
     except HTTPStatusError as ex:
-        LOG.error(
-            "Request to Log Detective API at %s failed with HTTP status error: %s",
-            LD_URL,
-            ex,
-        )
-        message = Message(
-            body={
-                "status": LogDetectiveResult.error,
-                "target_build": build_info.target_build,
-                "log_detective_analysis_id": log_detective_analysis_id,
-                "log_detective_analysis_start": log_detective_analysis_start,
-                "project_url": build_info.project_url,
-                "pr_id": build_info.pr_id,
-                "commit_sha": build_info.commit_sha,
-            },
-            topic=TOPIC,
+        msg = f"Request to Log Detective API at {LD_URL} failed with HTTP status error: {ex}"
+
+        LOG.error(msg=msg)
+        message = build_error_message(
+            log_detective_analysis_id=log_detective_analysis_id,
+            log_detective_analysis_start=log_detective_analysis_start,
+            build_info=build_info,
+            error_msg=msg,
         )
         await publish_message(message)
         raise ex
     except Exception as ex:
-        LOG.error("Request to Log Detective API at %s failed with %s", LD_URL, ex)
-        message = Message(
-            body={
-                "status": LogDetectiveResult.error,
-                "target_build": build_info.target_build,
-                "log_detective_analysis_id": log_detective_analysis_id,
-                "log_detective_analysis_start": log_detective_analysis_start,
-                "project_url": build_info.project_url,
-                "pr_id": build_info.pr_id,
-                "commit_sha": build_info.commit_sha,
-            },
-            topic=TOPIC,
+        msg = f"Request to Log Detective API at {LD_URL} failed with {ex}"
+        LOG.error(msg=msg)
+        message = build_error_message(
+            log_detective_analysis_id=log_detective_analysis_id,
+            log_detective_analysis_start=log_detective_analysis_start,
+            build_info=build_info,
+            error_msg=msg,
         )
         await publish_message(message)
         raise ex
@@ -109,18 +119,13 @@ async def call_log_detective(
     try:
         response = response.json()
     except JSONDecodeError as ex:
-        LOG.error("Decoding response from Log Detective API failed with %s", ex)
-        message = Message(
-            body={
-                "status": LogDetectiveResult.error,
-                "target_build": build_info.target_build,
-                "log_detective_analysis_id": log_detective_analysis_id,
-                "log_detective_analysis_start": log_detective_analysis_start,
-                "project_url": build_info.project_url,
-                "pr_id": build_info.pr_id,
-                "commit_sha": build_info.commit_sha,
-            },
-            topic=TOPIC,
+        msg = f"Decoding response from Log Detective API failed with {ex}"
+        LOG.error(msg=msg)
+        message = build_error_message(
+            log_detective_analysis_id=log_detective_analysis_id,
+            log_detective_analysis_start=log_detective_analysis_start,
+            build_info=build_info,
+            error_msg=msg,
         )
         await publish_message(message)
         raise ex
@@ -129,6 +134,7 @@ async def call_log_detective(
         "status": LogDetectiveResult.complete,
         "log_detective_response": response,
         "target_build": build_info.target_build,
+        "build_system": build_info.build_system,
         "log_detective_analysis_id": log_detective_analysis_id,
         "log_detective_analysis_start": log_detective_analysis_start,
         "project_url": build_info.project_url,

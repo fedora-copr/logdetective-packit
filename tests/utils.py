@@ -8,7 +8,7 @@ MINIMAL_BUILD_INFO = {
     "build_system": "copr",
     "commit_sha": "9deb98c730bb4123f518ca13a0dbec5d7c0669ca",
     "project_url": "www.logdetective.com",
-    "pr_id": 1
+    "pr_id": 1,
 }
 
 MULTIARTIFACT_BUILD_INFO = {
@@ -20,7 +20,7 @@ MULTIARTIFACT_BUILD_INFO = {
     "target_build": "12345",
     "commit_sha": "9deb98c730bb4123f518ca13a0dbec5d7c0669ca",
     "project_url": "www.logdetective.com",
-    "pr_id": 1
+    "pr_id": 1,
 }
 
 INVALID_BUILD_INFO_EMPTY_ARTIFACTS = {
@@ -29,7 +29,7 @@ INVALID_BUILD_INFO_EMPTY_ARTIFACTS = {
     "build_system": "copr",
     "commit_sha": "9deb98c730bb4123f518ca13a0dbec5d7c0669ca",
     "project_url": "www.logdetective.com",
-    "pr_id": 1
+    "pr_id": 1,
 }
 
 INVALID_BUILD_INFO_NO_TARGET_BUILD = {
@@ -37,7 +37,7 @@ INVALID_BUILD_INFO_NO_TARGET_BUILD = {
     "build_system": "koji",
     "commit_sha": "9deb98c730bb4123f518ca13a0dbec5d7c0669ca",
     "project_url": "www.logdetective.com",
-    "pr_id": 1
+    "pr_id": 1,
     # 'target_build' is missing
 }
 

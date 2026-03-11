@@ -9,7 +9,15 @@ from fedora_messaging.exceptions import (
 )
 from httpx import HTTPStatusError, AsyncClient, ASGITransport
 
-from logdetective_packit.models import BuildInfo
+from logdetective_packit.models import BuildInfo, LogDetectiveResult
+from logdetective_packit.main import (
+    build_error_message,
+    call_log_detective,
+    publish_message,
+    PUBLISH_TIMEOUT,
+    TOPIC,
+)
+
 
 from tests.utils import (
     MINIMAL_BUILD_INFO,
@@ -19,6 +27,49 @@ from tests.utils import (
     mock_server_logger,
     mock_create_task_call,
 )
+
+
+def test_build_error_message_content(mock_env_vars):
+    """Test that build_error_message constructs the Message body correctly."""
+    analysis_id = "test-uuid-123"
+    start_time = "2024-03-20T12:00:00Z"
+    error_text = "Analysis failed due to timeout"
+    build_info = BuildInfo(**MINIMAL_BUILD_INFO)
+
+    message = build_error_message(
+        log_detective_analysis_id=analysis_id,
+        log_detective_analysis_start=start_time,
+        build_info=build_info,
+        error_msg=error_text,
+    )
+
+    assert isinstance(message, Message)
+    assert message.topic == TOPIC
+
+    body = message.body
+    assert body["status"] == LogDetectiveResult.error
+    assert body["log_detective_analysis_id"] == analysis_id
+    assert body["log_detective_analysis_start"] == start_time
+    assert body["error_msg"] == error_text
+
+    assert body["target_build"] == build_info.target_build
+    assert body["build_system"] == build_info.build_system
+    assert body["project_url"] == build_info.project_url
+    assert body["pr_id"] == build_info.pr_id
+    assert body["commit_sha"] == build_info.commit_sha
+
+
+def test_build_error_message_default_error(mock_env_vars):
+    """Test build_error_message with the default empty error message."""
+    build_info = BuildInfo(**MINIMAL_BUILD_INFO)
+
+    message = build_error_message(
+        log_detective_analysis_id="id",
+        log_detective_analysis_start="start",
+        build_info=build_info,
+    )
+
+    assert message.body["error_msg"] == ""
 
 
 @pytest.mark.asyncio
@@ -47,7 +98,6 @@ async def test_publish_message_exceptions(
     mock_env_vars, mock_external_calls, mock_server_logger, exception
 ):
     """Test behavior of `publish_mesage` when encountering exceptions"""
-    from logdetective_packit.main import publish_message, PUBLISH_TIMEOUT
 
     message = Message(body=DUMMY_MESSAGE_BODY)
     mock_publish = mock_external_calls["mock_publish"]
@@ -66,12 +116,15 @@ async def test_publish_message_exceptions(
 async def test_call_log_detective(
     mock_env_vars, mock_external_calls, mock_server_logger
 ):
-    from logdetective_packit.main import call_log_detective
+
     log_detective_analysis_id = "8052517e-cf69-11f0-9b27-9a478821d0e2"
     log_detective_build_analysis_start = "2025-12-10 10:57:57.341695+00:00"
     build_info = BuildInfo(**MINIMAL_BUILD_INFO)
-    await call_log_detective(build_info=build_info, log_detective_analysis_id=log_detective_analysis_id,
-                             log_detective_analysis_start=log_detective_build_analysis_start)
+    await call_log_detective(
+        build_info=build_info,
+        log_detective_analysis_id=log_detective_analysis_id,
+        log_detective_analysis_start=log_detective_build_analysis_start,
+    )
 
     mock_external_calls["mock_publish"].assert_called_once()
 
@@ -82,8 +135,6 @@ async def test_call_log_detective_request_exception(
 ):
     """Test calls to Log Detective if the exception is raised by request"""
 
-    from logdetective_packit.main import call_log_detective
-
     build_info = BuildInfo(**MINIMAL_BUILD_INFO)
 
     mock_external_calls["mock_async_client"].post.side_effect = HTTPStatusError(
@@ -93,8 +144,11 @@ async def test_call_log_detective_request_exception(
     with pytest.raises(HTTPStatusError):
         log_detective_build_analysis_id = "8052517e-cf69-11f0-9b27-9a478821d0e2"
         log_detective_build_analysis_start = "2025-12-10 10:57:57.341695+00:00"
-        await call_log_detective(build_info=build_info, log_detective_analysis_id=log_detective_build_analysis_id,
-                                 log_detective_analysis_start=log_detective_build_analysis_start)
+        await call_log_detective(
+            build_info=build_info,
+            log_detective_analysis_id=log_detective_build_analysis_id,
+            log_detective_analysis_start=log_detective_build_analysis_start,
+        )
         mock_server_logger["mock_logger"].assert_called_once()
         mock_external_calls["mock_async_client"].post.assert_called_once()
 
@@ -122,7 +176,9 @@ async def test_analyze_build_skeleton(
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.post("/analyze", json=payload, headers={"Authorization": "Bearer secret-123"})
+        response = await client.post(
+            "/analyze", json=payload, headers={"Authorization": "Bearer secret-123"}
+        )
 
     # The endpoint returns None on success, so a 200 OK is expected
     assert response.status_code == 200
@@ -143,6 +199,7 @@ async def test_analyze_build_skeleton(
 
     # Check that fedora-messaging.api.publish was called
     mock_external_calls["mock_publish"].assert_called_once()
+
 
 @pytest.mark.asyncio
 async def test_analyze_build_skeleton(
