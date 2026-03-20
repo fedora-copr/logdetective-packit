@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel, Field
 import enum
 
@@ -15,9 +16,12 @@ class BuildInfo(BaseModel):
     )
     build_system: str = Field(description="System where the build was launched")
     project_url: str = Field(description="URL of the project being analyzed")
-    commit_sha: str = Field(description="SHA of the commit used as basis of the build")
-    pr_id: int = Field(
-        description="ID of the pull request, or equivalent of the given forge"
+    commit_sha: Optional[str] = Field(
+        description="SHA of the commit used as basis of the build", default=None
+    )
+    pr_id: Optional[int] = Field(
+        description="ID of the pull request, or equivalent of the given forge",
+        default=None,
     )
 
 
