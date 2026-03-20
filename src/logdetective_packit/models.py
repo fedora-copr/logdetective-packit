@@ -15,7 +15,9 @@ class BuildInfo(BaseModel):
         description="Unique identifier of the build so the result can be reported"
     )
     build_system: str = Field(description="System where the build was launched")
-    project_url: str = Field(description="URL of the project being analyzed")
+    project_url: Optional[str] = Field(
+        description="URL of the project being analyzed", default=None
+    )
     commit_sha: Optional[str] = Field(
         description="SHA of the commit used as basis of the build", default=None
     )
