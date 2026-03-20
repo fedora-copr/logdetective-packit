@@ -9,6 +9,7 @@ import uuid
 
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+import sentry_sdk
 
 from httpx import AsyncClient, HTTPStatusError
 from fedora_messaging.api import publish, Message
@@ -32,6 +33,11 @@ LD_PACKIT_TOKEN = os.environ.get("LD_PACKIT_TOKEN", "")
 LOG = logging.Logger("LogDetectivePackit", level=logging.WARNING)
 
 http_bearer = HTTPBearer()
+
+# Set the LD_PACKIT_INTERFACE_SENTRY_DSN env variable beforehand
+sentry_sdk.init(
+    dsn=os.environ.get("LD_PACKIT_INTERFACE_SENTRY_DSN")
+)
 
 app = FastAPI(title="LogDetectivePackit", version=version("logdetective-packit"))
 

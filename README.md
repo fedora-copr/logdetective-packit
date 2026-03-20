@@ -51,6 +51,8 @@ to the value in their `Authorization` header.
 
 For example `Authorization: Bearer secret-123`.
 
+Additionally, for Sentry error and performance monitoring, `LD_PACKIT_INTERFACE_SENTRY_DSN` environment variable has to be set.
+
 ## Run the container
 
 Images are published to quay.io. If it isn't available, or if you want
