@@ -1,4 +1,5 @@
 import asyncio
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from json import JSONDecodeError
 import logging
@@ -37,14 +38,27 @@ http_bearer = HTTPBearer()
 # Set the LD_PACKIT_INTERFACE_SENTRY_DSN env variable beforehand
 sentry_sdk.init(dsn=os.environ.get("LD_PACKIT_INTERFACE_SENTRY_DSN"))
 
-app = FastAPI(title="LogDetectivePackit", version=version("logdetective-packit"))
-
 # Setup logging for fedora-messaging
 conf.setup_logging()
 
 http_client = AsyncClient(timeout=LD_TIMEOUT)
 
 _log_detective_call_tasks: set[asyncio.Task] = set()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Handler running tasks when the server is being shut down."""
+    yield
+    if _log_detective_call_tasks:
+        await asyncio.gather(*_log_detective_call_tasks, return_exceptions=True)
+
+
+app = FastAPI(
+    title="LogDetectivePackit",
+    version=version("logdetective-packit"),
+    lifespan=lifespan,
+)
 
 
 async def publish_message(message: Message):
