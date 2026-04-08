@@ -35,14 +35,14 @@ LOG = logging.Logger("LogDetectivePackit", level=logging.WARNING)
 http_bearer = HTTPBearer()
 
 # Set the LD_PACKIT_INTERFACE_SENTRY_DSN env variable beforehand
-sentry_sdk.init(
-    dsn=os.environ.get("LD_PACKIT_INTERFACE_SENTRY_DSN")
-)
+sentry_sdk.init(dsn=os.environ.get("LD_PACKIT_INTERFACE_SENTRY_DSN"))
 
 app = FastAPI(title="LogDetectivePackit", version=version("logdetective-packit"))
 
 # Setup logging for fedora-messaging
 conf.setup_logging()
+
+http_client = AsyncClient(timeout=LD_TIMEOUT)
 
 
 async def publish_message(message: Message):
@@ -91,12 +91,11 @@ async def call_log_detective(
     if LD_TOKEN:
         headers["Authorization"] = f"Bearer {LD_TOKEN}"
     try:
-        async with AsyncClient(timeout=LD_TIMEOUT) as client:
-            response = await client.post(
-                url=LD_URL,
-                headers=headers,
-                json={"url": log_url},
-            )
+        response = await http_client.post(
+            url=LD_URL,
+            headers=headers,
+            json={"url": log_url},
+        )
         response.raise_for_status()
     except HTTPStatusError as ex:
         msg = f"Request to Log Detective API at {LD_URL} failed with HTTP status error: {ex}"
