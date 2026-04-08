@@ -417,6 +417,7 @@ dependencies = [
     { name = "fedora-messaging" },
     { name = "gunicorn" },
     { name = "httpx" },
+    { name = "logdetective-packit-message" },
     { name = "pydantic" },
     { name = "ruff" },
     { name = "sentry-sdk" },
@@ -437,6 +438,7 @@ requires-dist = [
     { name = "fedora-messaging", specifier = ">=3.8.0" },
     { name = "gunicorn", specifier = ">=23.0.0" },
     { name = "httpx", specifier = ">=0.28.1" },
+    { name = "logdetective-packit-message", editable = "schema" },
     { name = "pydantic", specifier = ">=2.12.3" },
     { name = "ruff", specifier = ">=0.14.2" },
     { name = "sentry-sdk", specifier = ">=2.17.0,<3.0.0" },
@@ -450,6 +452,17 @@ dev = [
     { name = "pytest-asyncio", specifier = ">=1.2.0" },
     { name = "pytest-mock", specifier = ">=3.15.1" },
 ]
+
+[[package]]
+name = "logdetective-packit-message"
+version = "0.1.0"
+source = { editable = "schema" }
+dependencies = [
+    { name = "fedora-messaging" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fedora-messaging", specifier = ">=3.8.0" }]
 
 [[package]]
 name = "packaging"

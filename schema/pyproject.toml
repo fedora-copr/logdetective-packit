@@ -1,0 +1,20 @@
+[project]
+name = "logdetective-packit-message"
+version = "0.1.0"
+description = "Package with the LogDetectiveMessage and LogDetectiveResult for packit integration"
+authors = [
+    { name = "Jiri Podivin", email = "jpodivin@redhat.com" },
+    { name = "Jan Matufka", email = "jmatufka@redhat.com" }
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fedora-messaging>=3.8.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.6,<0.10.0"]
+build-backend = "uv_build"
+
+[project.entry-points."fedora.messages"]
+"logdetective.analysis" = "logdetective_packit_message.models:LogDetectiveMessage"

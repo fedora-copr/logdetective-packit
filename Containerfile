@@ -22,6 +22,8 @@ COPY . /src
 
 WORKDIR /src
 
+RUN pip install ./schema
+
 RUN pip install .
 
 ENTRYPOINT gunicorn -c "./server/gunicorn.config.py" logdetective_packit.main:app

@@ -9,14 +9,14 @@ from fedora_messaging.exceptions import (
     PublishReturned,
 )
 from httpx import HTTPStatusError, AsyncClient, ASGITransport
+from logdetective_packit_message import LogDetectiveResult, LogDetectiveMessage
 
-from logdetective_packit.models import BuildInfo, LogDetectiveResult
+from logdetective_packit.models import BuildInfo
 from logdetective_packit.main import (
     build_error_message,
     call_log_detective,
     publish_message,
     PUBLISH_TIMEOUT,
-    TOPIC,
 )
 
 
@@ -31,7 +31,7 @@ from tests.utils import (
 
 
 def test_build_error_message_content(mock_env_vars):
-    """Test that build_error_message constructs the Message body correctly."""
+    """Test that build_error_message constructs the LogDetectiveMessage body correctly."""
     analysis_id = "test-uuid-123"
     start_time = datetime.fromisoformat("2024-03-20T12:00:00Z")
     error_text = "Analysis failed due to timeout"
@@ -44,8 +44,8 @@ def test_build_error_message_content(mock_env_vars):
         error_msg=error_text,
     )
 
-    assert isinstance(message, Message)
-    assert message.topic == TOPIC
+    assert isinstance(message, LogDetectiveMessage)
+    assert message.topic == LogDetectiveMessage.topic
 
     body = message.body
     assert body["status"] == LogDetectiveResult.error
@@ -163,9 +163,12 @@ async def test_analyze_build_skeleton(
     # Mock the return value of requests.post().json()
     mock_response = mocker.Mock()
     mock_response.json.return_value = {"status": "analysis_started", "id": "fake-id"}
-
     mock_response.raise_for_status = mocker.Mock()
     mock_external_calls["mock_async_client"].post.return_value = mock_response
+
+    monkeypatch.setattr("logdetective_packit.main.LD_URL", "http://mock-ld-server.com/api")
+    monkeypatch.setattr("logdetective_packit.main.LD_TOKEN", "test-token-123")
+    monkeypatch.setattr("logdetective_packit.main.LD_PACKIT_TOKEN", "secret-123")
 
     # Import the app *after* environment and mocks are in place
     from logdetective_packit.main import app
@@ -203,7 +206,7 @@ async def test_analyze_build_skeleton(
 
 
 @pytest.mark.asyncio
-async def test_analyze_build_skeleton(
+async def test_analyze_build_skeleton_no_token(
     monkeypatch, mocker, mock_env_vars, mock_external_calls, mock_create_task_call
 ):
     """Test for the entire /analyze endpoint. Authentication token is not provided."""

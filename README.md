@@ -35,11 +35,11 @@ target_build (str): A unique identifier for the build, which will be included in
 
 build_system (str): Name of the build system used, in practice either `copr` or `koji`
 
-commit_sha (str): Hash of the commit from which the build was created
+commit_sha (str, optional): Hash of the commit from which the build was created
 
-project_url (str): URL of the project the build is for
+project_url (str, optional): URL of the project the build is for
 
-pr_id (int): Identifier of the pull request, or equivalent
+pr_id (int, optional): Identifier of the pull request, or equivalent
 
 Of these values, only `artifacts` are used by Log Detective itself.
 The rest is used as part of a message sent to Fedora Messaging infrastructure,
@@ -87,6 +87,22 @@ Installing the project and all dependencies locally with `uv sync --locked --all
 
 This server should be kept as small and fast as possible. Processing of logs should all be done
 on the side of Log Detective server itself.
+
+### logdetective-packit-message package
+
+The `schema/` directory contains a separate installable Python package (`logdetective-packit-message`) that provides:
+- `LogDetectiveMessage` fedora-messaging schema class, and
+- `LogDetectiveResult` enum.
+
+Both this service and consumers (`packit-service`) should depend on this package
+rather than duplicating these definitions.
+To install it locally for development:
+
+```bash
+pip install -e ./schema
+```
+
+When using uv, this is handled automatically via `[tool.uv.sources]` in pyproject.toml.
 
 ### Testing
 

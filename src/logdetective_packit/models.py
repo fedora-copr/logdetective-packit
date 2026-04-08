@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, Field
-import enum
 
 
 class BuildInfo(BaseModel):
@@ -32,23 +31,3 @@ class Response(BaseModel):
         description="UUID of the analysis which will be used to retrieve the results from messages"
     )
     creation_time: datetime = Field(description="Time of Log Detective analysis start")
-
-
-# TODO: Figure out if we can't import this class in packit-service
-class LogDetectiveResult(str, enum.Enum):
-    """Results of Log Detective analysis.
-    Counterpart of the same class in packit-service package. Has to be kept in sync."""
-
-    __test__ = False
-
-    complete = "complete"
-    running = "running"
-    unknown = "unknown"
-    error = "error"
-
-    @classmethod
-    def from_string(cls, value):
-        try:
-            return cls(value)
-        except ValueError:
-            return cls.unknown
