@@ -44,6 +44,8 @@ conf.setup_logging()
 
 http_client = AsyncClient(timeout=LD_TIMEOUT)
 
+_log_detective_call_tasks: set[asyncio.Task] = set()
+
 
 async def publish_message(message: Message):
     try:
@@ -150,6 +152,16 @@ async def call_log_detective(
     await publish_message(message)
 
 
+def analysis_task_callback(task: asyncio.Task):
+    """Check that task didn't raise exception and was completed successfully."""
+    try:
+        if exc := task.exception():
+            sentry_sdk.capture_exception(exc)
+    # Check for errors that can be raised from exception() call
+    except asyncio.CancelledError as cancelled_error:
+        sentry_sdk.capture_exception(cancelled_error)
+
+
 @app.post("/analyze", response_model=Response)
 async def analyze_build(
     build_info: BuildInfo,
@@ -167,13 +179,18 @@ async def analyze_build(
 
     log_detective_analysis_id = str(uuid.uuid4())
     log_detective_analysis_start = str(datetime.now(timezone.utc))
-    asyncio.create_task(
+    task = asyncio.create_task(
         call_log_detective(
             build_info,
             log_detective_analysis_id,
             log_detective_analysis_start=log_detective_analysis_start,
         )
     )
+    _log_detective_call_tasks.add(task)
+
+    # Verify that task was completed and remove it from set of running tasks
+    task.add_done_callback(analysis_task_callback)
+    task.add_done_callback(_log_detective_call_tasks.discard)
 
     return Response(
         log_detective_analysis_id=log_detective_analysis_id,
