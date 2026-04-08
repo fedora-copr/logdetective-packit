@@ -57,7 +57,7 @@ async def publish_message(message: Message):
 
 def build_error_message(
     log_detective_analysis_id: str,
-    log_detective_analysis_start: str,
+    log_detective_analysis_start: datetime,
     build_info: BuildInfo,
     error_msg: str = "",
 ) -> Message:
@@ -68,7 +68,7 @@ def build_error_message(
             "target_build": build_info.target_build,
             "build_system": build_info.build_system,
             "log_detective_analysis_id": log_detective_analysis_id,
-            "log_detective_analysis_start": log_detective_analysis_start,
+            "log_detective_analysis_start": str(log_detective_analysis_start),
             "project_url": build_info.project_url,
             "pr_id": build_info.pr_id,
             "commit_sha": build_info.commit_sha,
@@ -81,7 +81,7 @@ def build_error_message(
 async def call_log_detective(
     build_info: BuildInfo,
     log_detective_analysis_id: str,
-    log_detective_analysis_start: str,
+    log_detective_analysis_start: datetime,
 ) -> None:
     """Analyze build artifacts using Log Detective API. Only the first log
     is analyzed."""
@@ -143,7 +143,7 @@ async def call_log_detective(
         "target_build": build_info.target_build,
         "build_system": build_info.build_system,
         "log_detective_analysis_id": log_detective_analysis_id,
-        "log_detective_analysis_start": log_detective_analysis_start,
+        "log_detective_analysis_start": str(log_detective_analysis_start),
         "project_url": build_info.project_url,
         "pr_id": build_info.pr_id,
         "commit_sha": build_info.commit_sha,
@@ -178,7 +178,7 @@ async def analyze_build(
         )
 
     log_detective_analysis_id = str(uuid.uuid4())
-    log_detective_analysis_start = str(datetime.now(timezone.utc))
+    log_detective_analysis_start = datetime.now(timezone.utc)
     task = asyncio.create_task(
         call_log_detective(
             build_info,

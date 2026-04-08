@@ -1,5 +1,6 @@
 import pytest
 
+from datetime import datetime
 from fedora_messaging.api import Message
 from fedora_messaging.exceptions import (
     ValidationError,
@@ -32,7 +33,7 @@ from tests.utils import (
 def test_build_error_message_content(mock_env_vars):
     """Test that build_error_message constructs the Message body correctly."""
     analysis_id = "test-uuid-123"
-    start_time = "2024-03-20T12:00:00Z"
+    start_time = datetime.fromisoformat("2024-03-20T12:00:00Z")
     error_text = "Analysis failed due to timeout"
     build_info = BuildInfo(**MINIMAL_BUILD_INFO)
 
@@ -49,7 +50,7 @@ def test_build_error_message_content(mock_env_vars):
     body = message.body
     assert body["status"] == LogDetectiveResult.error
     assert body["log_detective_analysis_id"] == analysis_id
-    assert body["log_detective_analysis_start"] == start_time
+    assert datetime.fromisoformat(body["log_detective_analysis_start"]) == start_time
     assert body["error_msg"] == error_text
 
     assert body["target_build"] == build_info.target_build
@@ -118,7 +119,7 @@ async def test_call_log_detective(
 ):
 
     log_detective_analysis_id = "8052517e-cf69-11f0-9b27-9a478821d0e2"
-    log_detective_build_analysis_start = "2025-12-10 10:57:57.341695+00:00"
+    log_detective_build_analysis_start = datetime.fromisoformat("2025-12-10 10:57:57.341695+00:00")
     build_info = BuildInfo(**MINIMAL_BUILD_INFO)
     await call_log_detective(
         build_info=build_info,
@@ -143,7 +144,7 @@ async def test_call_log_detective_request_exception(
 
     with pytest.raises(HTTPStatusError):
         log_detective_build_analysis_id = "8052517e-cf69-11f0-9b27-9a478821d0e2"
-        log_detective_build_analysis_start = "2025-12-10 10:57:57.341695+00:00"
+        log_detective_build_analysis_start = datetime.fromisoformat("2025-12-10 10:57:57.341695+00:00")
         await call_log_detective(
             build_info=build_info,
             log_detective_analysis_id=log_detective_build_analysis_id,
