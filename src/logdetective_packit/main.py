@@ -36,7 +36,9 @@ LOG = logging.getLogger("LogDetectivePackit")
 http_bearer = HTTPBearer()
 
 # Set the LD_PACKIT_INTERFACE_SENTRY_DSN env variable beforehand
-sentry_sdk.init(dsn=os.environ.get("LD_PACKIT_INTERFACE_SENTRY_DSN"))
+sentry_sdk.init(
+    dsn=os.environ.get("LD_PACKIT_INTERFACE_SENTRY_DSN"), traces_sample_rate=1.0
+)
 
 # Setup logging for fedora-messaging
 conf.setup_logging()
