@@ -55,6 +55,7 @@ def mock_env_vars(monkeypatch):
     monkeypatch.setenv("LD_PACKIT_TOKEN", "secret-123")
     monkeypatch.setenv("PUBLISH_TIMEOUT", "10")
     monkeypatch.setenv("MESSAGE_EXCHANGE", "test-exchange")
+    monkeypatch.setenv("LD_URL", "http://this-is-not-log-detective.cs")
 
 
 @pytest.fixture
@@ -74,7 +75,7 @@ def mock_external_calls(mocker):
     # placed on post
     mock_async_client.__aenter__.return_value = mock_async_client
 
-    mocker.patch("logdetective_packit.main.AsyncClient", return_value=mock_async_client)
+    mocker.patch("logdetective_packit.main.http_client", mock_async_client)
     mock_publish = mocker.patch("logdetective_packit.main.publish")
 
     return {"mock_publish": mock_publish, "mock_async_client": mock_async_client}
