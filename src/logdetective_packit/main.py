@@ -31,7 +31,7 @@ LD_TIMEOUT = int(os.environ.get("LD_TIMEOUT", 107))
 PUBLISH_TIMEOUT = int(os.environ.get("PUBLISH_TIMEOUT", 30))
 LD_PACKIT_TOKEN = os.environ.get("LD_PACKIT_TOKEN", "")
 
-LOG = logging.Logger("LogDetectivePackit", level=logging.WARNING)
+LOG = logging.getLogger("LogDetectivePackit")
 
 http_bearer = HTTPBearer()
 
