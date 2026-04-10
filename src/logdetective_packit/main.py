@@ -13,7 +13,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 import sentry_sdk
 
 from httpx import AsyncClient, HTTPStatusError
-from fedora_messaging.api import publish, Message
+from fedora_messaging.api import publish
 from fedora_messaging.config import conf
 from fedora_messaging.exceptions import (
     ValidationError,
@@ -21,10 +21,10 @@ from fedora_messaging.exceptions import (
     PublishTimeout,
     PublishReturned,
 )
+from logdetective_packit_message import LogDetectiveResult, LogDetectiveMessage
 
-from logdetective_packit.models import BuildInfo, Response, LogDetectiveResult
+from logdetective_packit.models import BuildInfo, Response
 
-TOPIC = os.environ.get("LD_TOPIC", "logdetective.analysis")
 LD_URL = os.environ.get("LD_URL")
 LD_TOKEN = os.environ.get("LD_TOKEN", "")
 LD_TIMEOUT = int(os.environ.get("LD_TIMEOUT", 107))
@@ -63,7 +63,7 @@ app = FastAPI(
 )
 
 
-async def publish_message(message: Message):
+async def publish_message(message: LogDetectiveMessage):
     try:
         await asyncio.to_thread(publish, message=message, timeout=PUBLISH_TIMEOUT)
     except (PublishReturned, PublishForbidden, PublishTimeout, ValidationError) as ex:
@@ -76,9 +76,9 @@ def build_error_message(
     log_detective_analysis_start: datetime,
     build_info: BuildInfo,
     error_msg: str = "",
-) -> Message:
+) -> LogDetectiveMessage:
     """Build and return standard error message"""
-    return Message(
+    return LogDetectiveMessage(
         body={
             "status": LogDetectiveResult.error,
             "target_build": build_info.target_build,
@@ -90,7 +90,6 @@ def build_error_message(
             "commit_sha": build_info.commit_sha,
             "error_msg": error_msg,
         },
-        topic=TOPIC,
     )
 
 
@@ -164,7 +163,7 @@ async def call_log_detective(
         "pr_id": build_info.pr_id,
         "commit_sha": build_info.commit_sha,
     }
-    message = Message(body=response, topic=TOPIC)
+    message = LogDetectiveMessage(body=response)
     await publish_message(message)
 
 

@@ -16,7 +16,11 @@ dependencies = [
     "pydantic>=2.12.3",
     "ruff>=0.14.2",
     "uvicorn>=0.38.0",
+    "logdetective-packit-message",
 ]
+
+[tool.uv.sources]
+logdetective-packit-message = { path = "schema", editable = true }
 
 [project.scripts]
 example-pkg = "logdetective_packit:main"
