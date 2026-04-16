@@ -18,6 +18,7 @@ from logdetective_packit.main import (
     publish_message,
     PUBLISH_TIMEOUT,
 )
+from logdetective_packit.utils import is_url
 
 
 from tests.utils import (
@@ -117,9 +118,10 @@ async def test_publish_message_exceptions(
 async def test_call_log_detective(
     mock_env_vars, mock_external_calls, mock_server_logger
 ):
-
     log_detective_analysis_id = "8052517e-cf69-11f0-9b27-9a478821d0e2"
-    log_detective_build_analysis_start = datetime.fromisoformat("2025-12-10 10:57:57.341695+00:00")
+    log_detective_build_analysis_start = datetime.fromisoformat(
+        "2025-12-10 10:57:57.341695+00:00"
+    )
     build_info = BuildInfo(**MINIMAL_BUILD_INFO)
     await call_log_detective(
         build_info=build_info,
@@ -144,7 +146,9 @@ async def test_call_log_detective_request_exception(
 
     with pytest.raises(HTTPStatusError):
         log_detective_build_analysis_id = "8052517e-cf69-11f0-9b27-9a478821d0e2"
-        log_detective_build_analysis_start = datetime.fromisoformat("2025-12-10 10:57:57.341695+00:00")
+        log_detective_build_analysis_start = datetime.fromisoformat(
+            "2025-12-10 10:57:57.341695+00:00"
+        )
         await call_log_detective(
             build_info=build_info,
             log_detective_analysis_id=log_detective_build_analysis_id,
@@ -160,13 +164,18 @@ async def test_analyze_build_skeleton(
 ):
     """Test for the entire /analyze endpoint."""
 
+    # Mock is_url to test calls
+    mock_is_url = mocker.patch("logdetective_packit.main.is_url", side_effect=is_url)
+
     # Mock the return value of requests.post().json()
     mock_response = mocker.Mock()
     mock_response.json.return_value = {"status": "analysis_started", "id": "fake-id"}
     mock_response.raise_for_status = mocker.Mock()
     mock_external_calls["mock_async_client"].post.return_value = mock_response
 
-    monkeypatch.setattr("logdetective_packit.main.LD_URL", "http://mock-ld-server.com/api")
+    monkeypatch.setattr(
+        "logdetective_packit.main.LD_URL", "http://mock-ld-server.com/api"
+    )
     monkeypatch.setattr("logdetective_packit.main.LD_TOKEN", "test-token-123")
     monkeypatch.setattr("logdetective_packit.main.LD_PACKIT_TOKEN", "secret-123")
 
@@ -193,8 +202,16 @@ async def test_analyze_build_skeleton(
     # Check that requests.post was called correctly
     expected_headers = {"Authorization": "Bearer test-token-123"}
     # The code only takes the first log URL
-    expected_data = {"url": "http://example.com/builder-live.log"}
+    expected_data = {
+        "files": [
+            {
+                "name": "builder-live.log",
+                "url": "http://example.com/builder-live.log",
+            }
+        ]
+    }
 
+    mock_is_url.assert_called_once_with("http://example.com/builder-live.log")
     mock_external_calls["mock_async_client"].post.assert_called_once_with(
         url="http://mock-ld-server.com/api",
         json=expected_data,
