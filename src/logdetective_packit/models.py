@@ -3,6 +3,24 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
+class BuildMetadata(BaseModel):
+    """Model of additional information provided about the build."""
+
+    specfile: Optional[str] = Field(
+        description="Contents of package spec file as a string.", default=None
+    )
+    last_patch: Optional[str] = Field(
+        description="Contents of last patch applied as a string.", default=None
+    )
+    commentary: Optional[str] = Field(
+        description="Comment attached to the triggered build, such as PR description.",
+        default=None,
+    )
+    infra_status: Optional[str] = Field(
+        description="State of build infrastructure as a string.", default=None
+    )
+
+
 class BuildInfo(BaseModel):
     """ID of the build being analyzed and URL to and all artifacts."""
 
@@ -23,6 +41,9 @@ class BuildInfo(BaseModel):
     pr_id: Optional[int] = Field(
         description="ID of the pull request, or equivalent of the given forge",
         default=None,
+    )
+    build_metadata: Optional[BuildMetadata] = Field(
+        description="Optional build metadata.", default=None
     )
 
 

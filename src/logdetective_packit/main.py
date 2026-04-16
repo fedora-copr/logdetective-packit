@@ -24,6 +24,7 @@ from fedora_messaging.exceptions import (
 from logdetective_packit_message import LogDetectiveResult, LogDetectiveMessage
 
 from logdetective_packit.models import BuildInfo, Response
+from logdetective_packit.utils import is_url
 
 LD_URL = os.environ.get("LD_URL")
 LD_TOKEN = os.environ.get("LD_TOKEN", "")
@@ -98,11 +99,27 @@ async def call_log_detective(
     log_detective_analysis_id: str,
     log_detective_analysis_start: datetime,
 ) -> None:
-    """Analyze build artifacts using Log Detective API. Only the first log
-    is analyzed."""
-    build_artifacts = list(build_info.artifacts.items())
-    log_url = build_artifacts[0][1]
+    """Analyze build artifacts using Log Detective API."""
+
     headers = {}
+    files = []
+    analysis_request = {}
+
+    for artifact_identity, artifact_content in build_info.artifacts.items():
+        if is_url(artifact_content):
+            files.append({"name": artifact_identity, "url": artifact_content})
+        else:
+            files.append(
+                {
+                    "name": artifact_identity,
+                    "content": artifact_content,
+                }
+            )
+
+    analysis_request["files"] = files
+
+    if build_info.build_metadata:
+        analysis_request["build_metadata"] = build_info.build_metadata.model_dump()
 
     # If Log Detective server requires authorization
     if LD_TOKEN:
@@ -111,7 +128,7 @@ async def call_log_detective(
         response = await http_client.post(
             url=LD_URL,
             headers=headers,
-            json={"url": log_url},
+            json=analysis_request,
         )
         response.raise_for_status()
     except HTTPStatusError as ex:
