@@ -144,7 +144,7 @@ async def call_log_detective(
         await publish_message(message)
         raise ex
     except Exception as ex:
-        msg = f"Request to Log Detective API at {LD_URL} failed with {ex}"
+        msg = f"Request to Log Detective API at {LD_URL} failed with {type(ex).__name__}: {ex}"
         LOG.error(msg=msg)
         message = build_error_message(
             log_detective_analysis_id=log_detective_analysis_id,
