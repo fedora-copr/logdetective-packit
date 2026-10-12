@@ -1,5 +1,7 @@
 # logdetective-packit
 
+**This project has been discontinued and archived. No further releases or changes expected.**
+
 [![Run pytest](https://github.com/fedora-copr/logdetective-packit/actions/workflows/pytest.yml/badge.svg)](https://github.com/fedora-copr/logdetective-packit/actions/workflows/pytest.yml) [![Container Image Build and Publish](https://github.com/fedora-copr/logdetective-packit/actions/workflows/image_publish.yml/badge.svg)](https://github.com/fedora-copr/logdetective-packit/actions/workflows/image_publish.yml)
 
 Server providing interface between [Packit](https://packit.dev/) and [Log Detective](https://github.com/fedora-copr/logdetective) using [Fedora
